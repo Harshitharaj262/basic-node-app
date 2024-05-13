@@ -1,8 +1,5 @@
-const fs = require("fs");
-const path = require("path");
-const RootDir = require("../utils/path");
-const productfilePath = path.join(RootDir, "data", "products.json");
 const Cart = require("./cart");
+const db = require("../utils/db")
 
 const getProductsFromFile = (callback) => {
   fs.readFile(productfilePath, (err, fileContent) => {
@@ -23,50 +20,20 @@ module.exports = class Product {
     this.price = price;
   }
   save() {
-    getProductsFromFile((products) => {
-      if (this.id) {
-        const existingProductIndex = products.findIndex(
-          (prod) => prod.id === this.id
-        );
-        const updtaedProducts = [...products];
-        updtaedProducts[existingProductIndex] = this;
-        fs.writeFile(
-          productfilePath,
-          JSON.stringify(updtaedProducts),
-          (err) => {
-            console.log(err);
-          }
-        );
-      } else {
-        this.id = Math.random().toString();
-        products.push(this);
-        fs.writeFile(productfilePath, JSON.stringify(products), (err) => {
-          console.log(err);
-        });
-      }
-    });
+    return db.execute('INSERT INTO products (title, price,imageUrl,description) VALUES (?, ?, ?, ?)',[this.title, this.price, this.imageUrl, this.description])
+  
   }
 
-  static deleteById(id) {
-    getProductsFromFile((products) => {
-      const product = products.findIndex((prod) => prod.id === id);
-      const updatedProducts = products.filter((prod) => prod.id !== id);
-      fs.writeFile(productfilePath, JSON.stringify(updatedProducts), (err) => {
-        if (!err) {
-          Cart.deleteProduct(id, product.price);
-        }
-      });
-    });
+  static deleteById() {
+    
   }
 
-  static fetchAll(cb) {
-    getProductsFromFile(cb);
+  static fetchAll() {
+   return db.execute('Select * from products')
   }
 
-  static findById(id, cb) {
-    getProductsFromFile((products) => {
-      const product = products.find((p) => p.id === id);
-      cb(product);
-    });
+  static findById(id) {
+    return db.execute('SELECT * FROM products WHERE id = ?',[id])
+   
   }
 };
