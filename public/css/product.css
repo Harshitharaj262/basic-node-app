@@ -24,4 +24,6 @@
 
 .product__description {
     text-align: center;
+    word-break: break-all;
+    white-space: normal;
 }
