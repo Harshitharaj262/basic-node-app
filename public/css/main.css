@@ -30,8 +30,10 @@ form {
 
 .main-header__nav {
   height: 100%;
-  display: none;
+  width: 100%;
   align-items: center;
+  display: flex;
+  justify-content: space-between;
 }
 
 .main-header__item-list {
@@ -44,6 +46,18 @@ form {
 .main-header__item {
   margin: 0 1rem;
   padding: 0;
+}
+
+.main-header__item button{
+  color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+  background: none;
+  text-decoration: none;
+  color: white;
 }
 
 .main-header__item a {
