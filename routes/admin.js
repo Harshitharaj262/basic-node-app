@@ -13,6 +13,7 @@ router.post("/add-product",isAuth,adminController.postAddProduct);
 // GET /admin/edit-product
 router.get("/edit-product/:productId",isAuth,adminController.getEditProduct);
 
+
 router.post("/edit-product",isAuth, adminController.postEditProduct);
 
 // GET /admin/products
