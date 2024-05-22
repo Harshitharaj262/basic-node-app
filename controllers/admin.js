@@ -62,15 +62,18 @@ exports.postEditProduct = (req, res, next) => {
   const description = req.body.description;
   Product.findById(prodId)
     .then((product) => {
+      if(product.userId.toString() !== req.user._id.toString()){
+        req.flash("error", "You are not allowed to edit this product");
+        return res.redirect('/admin/products')
+      }
       product.title = title;
       product.price = price;
       product.description = description;
       product.imageUrl = imageUrl;
-      return product.save();
-    })
-    .then((result) => {
-      console.log("Updated product");
-      res.redirect("/admin/products");
+      return product.save().then((result) => {
+        console.log("Updated product");
+        res.redirect("/admin/products");
+      })
     })
     .catch((err) => {
       console.log(err);
@@ -79,9 +82,8 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.deleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findByIdAndDelete(prodId)
+  Product.deleteOne({_id:prodId, userId:req.user._id})
     .then((result) => {
-      console.log("Product deleted");
       res.redirect("/admin/products");
     })
     .catch((err) => {
@@ -90,19 +92,27 @@ exports.deleteProduct = (req, res, next) => {
 };
 
 exports.getAdminProduct = (req, res, next) => {
-  Product.find()
-    // control which fields needs to be fetched
-    // .select('title price -_id')
-    // get data from ref field
-    // .populate('userId','name')
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  if(req.user){
+    Product.find({userId:req.user._id})
     .then((products) => {
       res.render("admin/product", {
         pageTitle: "Admin Products",
         path: "/admin/products", // pug
-        products: products
+        products: products,
+        errorMessage: message
+        
       });
     })
     .catch((err) => {
       console.log(err);
     });
+
+  }
+  
 };

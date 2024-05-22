@@ -7,7 +7,7 @@
     <%- include('../includes/navigation.ejs') %>
     <main>
         <% if(errorMessage) {%>
-            <div class="user-message user-message--error"><%= errorMessage%></div>
+            <div class="user-message user-message--error" id="flash-messages"><%= errorMessage%></div>
             <%}%>
         <form class="login-form" action="/signup" method="POST">
             <div class="form-control">
