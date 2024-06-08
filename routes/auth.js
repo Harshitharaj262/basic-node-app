@@ -1,25 +1,30 @@
-const express = require('express');
+const express = require("express");
+const validate = require("../middlerware/is-validate");
 
 const router = express.Router();
 
-const authController = require('../controllers/auth')
+const authController = require("../controllers/auth");
 
-router.get('/login', authController.getLogin)
+const User = require("../models/user");
 
-router.post('/login', authController.postLogin)
+router.get("/login", authController.getLogin);
 
-router.get('/signup', authController.getSignup)
+router.post("/login", validate.checkLoginValue(), authController.postLogin);
 
-router.post('/signup', authController.postSignup)
+router.get("/signup", authController.getSignup);
 
-router.post('/logout', authController.postLogout)
+router.post(
+  "/signup", validate.checkSignUpValue(),authController.postSignup
+);
 
-router.get('/reset', authController.getReset)
+router.post("/logout", authController.postLogout);
 
-router.post('/reset', authController.postReset)
+router.get("/reset", authController.getReset);
 
-router.get('/reset/:token', authController.getNewPassword)
+router.post("/reset", authController.postReset);
 
-router.post('/new-password', authController.postNewPassword)
+router.get("/reset/:token", authController.getNewPassword);
 
-module.exports = router
+router.post("/new-password", authController.postNewPassword);
+
+module.exports = router;
