@@ -12,7 +12,9 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 };
 
@@ -27,7 +29,9 @@ exports.getProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 };
 
@@ -41,7 +45,9 @@ exports.getIndex = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 };
 
@@ -60,7 +66,9 @@ exports.getCart = (req, res, next) => {
         });
       })
       .catch((err) => {
-        console.log(err);
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        throw next(error)
       });
     }else{
       const products = req.user.cart.items
@@ -80,7 +88,9 @@ exports.postCardDeleteProduct = (req, res, next) => {
     // console.log(result);
     res.redirect('/cart')
   }).catch(err=>{
-    console.log(err);
+    const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
   })
 };
 
@@ -95,7 +105,9 @@ exports.addToCart = (req, res, next) => {
       res.redirect("/cart");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 };
 
@@ -107,8 +119,9 @@ exports.getOrders = (req, res, next) => {
       orders:orders
     })
   }).catch((err) => {
-    console.log(err);
-
+    const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
   })
   
 };
@@ -140,6 +153,8 @@ exports.postOrder = (req, res, next) => {
   }).then(result=>{
     res.redirect("/orders");
   }).catch((err) => {
-      console.log(err);
+    const error = new Error(err)
+    error.httpStatusCode = 500
+    throw next(error)
     });
 };

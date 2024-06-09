@@ -51,7 +51,20 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(err);
+      // console.log("An error occurred");
+      // return res.status(500).render("admin/add-product", {
+      //   pageTitle: "Add Product", ///pug
+      //   path: "/admin/add-product",
+      //   editing: false,
+      //   hasError: true,
+      //   errorMessage: "Database operation failed, please try again.",
+      //   oldInput:{title: title, description: description,price:price, imageUrl:imageUrl, description: description},
+      //   validationErrors: []
+      // });
+      // res.redirect("/500")
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 };
 
@@ -81,7 +94,9 @@ exports.getEditProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 };
 exports.postEditProduct = (req, res, next) => {
@@ -117,7 +132,9 @@ exports.postEditProduct = (req, res, next) => {
       })
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 };
 
@@ -128,7 +145,9 @@ exports.deleteProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+    error.httpStatusCode = 500
+      throw next(error)
     });
 };
 
@@ -151,7 +170,9 @@ exports.getAdminProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      throw next(error)
     });
 
   }

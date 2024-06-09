@@ -41,13 +41,19 @@ app.use((req,res,next) => {
   next()
 })
 app.use((req,res,next)=>{
+  // throw new Error("Dummy")
   if(!req.session.user || !req.session.user._id){
     return next();
   }
   User.findById(req.session.user._id).then((user)=>{
+    if(!user){
+      return next();
+    }
     req.user = user;
     next()
-  }).catch((error)=>{console.log(error)});
+  }).catch((error)=>{
+    next(new Error(error))
+  });
 })
 
 app.use(shopRoute);
@@ -55,8 +61,17 @@ app.use("/admin", adminRoutes);
 app.use(authRoute)
 
 
-
+app.get('/500',errorController.get500)
 app.use(errorController.get404);
+
+app.use((error, req, res, next)=>{
+  res.status(500).render('500',{
+    pageTitle: 'Error',
+    path:'/500',
+    isAuthenticated: req.session.isLoggedIn
+  })
+
+})
 
 mongoose.connect(MONGODB_URI)
 .then(result=>{
