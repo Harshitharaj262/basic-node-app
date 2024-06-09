@@ -1,6 +1,8 @@
 const Product = require("../models/product");
 const { check, validationResult } = require("express-validator");
 const fileHelper = require("../utils/file")
+
+const ITEMS_PER_PAGE = 2
 exports.getAddProduct = (req, res, next) => {
   if (!req.session.isLoggedIn) {
     return res.redirect("/login");
@@ -183,14 +185,25 @@ exports.getAdminProduct = (req, res, next) => {
     message = null;
   }
   if(req.user){
-    Product.find({userId:req.user._id})
-    .then((products) => {
+    const page = +req.query.page || 1;
+  let totalItems = 0
+  Product.find({userId:req.user._id}).countDocuments().then(numberOfProducts =>{
+    totalItems = numberOfProducts
+    return Product.find()
+    .skip((page-1) * ITEMS_PER_PAGE)
+    .limit(ITEMS_PER_PAGE)
+  }).then((products) => {
       res.render("admin/product", {
-        pageTitle: "Admin Products",
-        path: "/admin/products", // pug
         products: products,
-        errorMessage: message
-        
+        pageTitle: "Admin Products", ///pug
+        path: "/admin/products" ,//pug,
+        errorMessage: message,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page+1,
+        previousPage: page-1,
+        lastPage: Math.ceil(totalItems/ITEMS_PER_PAGE)
       });
     })
     .catch((err) => {
@@ -198,6 +211,22 @@ exports.getAdminProduct = (req, res, next) => {
       error.httpStatusCode = 500
       throw next(error)
     });
+    
+    // Product.find({userId:req.user._id})
+    // .then((products) => {
+    //   res.render("admin/product", {
+    //     pageTitle: "Admin Products",
+    //     path: "/admin/products", // pug
+    //     products: products,
+    //     errorMessage: message
+        
+    //   });
+    // })
+    // .catch((err) => {
+    //   const error = new Error(err)
+    //   error.httpStatusCode = 500
+    //   throw next(error)
+    // });
 
   }
   
