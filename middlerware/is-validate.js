@@ -49,7 +49,6 @@ exports.checkSignUpValue = (req, res, next) =>{
 exports.checkAddProduct =  (req, res, next)=>{
   const values=[
    body('title', "Title should only contain numbers and characters.").isString().isLength({min:3}).trim(),
-   body('imageUrl','imageURL is not a valid URL').isURL(),
    body('price', "Invalid price value").isFloat(),
    body('description' , "Description must contain a minimum of 3 and a maximum of 200 characters.").isLength({min:5, max: 200})
   ]

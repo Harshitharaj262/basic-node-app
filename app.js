@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const multer = require("multer")
 const mongoose = require("mongoose");
 const session = require("express-session")
 const csrf = require("csurf")
@@ -23,16 +24,39 @@ const store = new MongodbStore({
 })
 const csrfProtection = csrf() //middleware
 
+const fileStorage = multer.diskStorage({
+  destination: (req,file,cb)=>{
+    cb(null,'images')},
+  filename: (req,file,cb)=>{
+    cb(null,new Date().toISOString()+'-'+file.originalname)
+  }
+})
+
+const filefilter = (req,file,cb)=>{
+  if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg'){
+    cb(null, true)
+  }else{
+    cb(null, false)
+  }
+
+  
+}
 app.set("view engine", "ejs"); // Use this engine for dynamic views and use ejs
 
 app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(multer({dest:'images', storage: fileStorage, fileFilter:filefilter}).single('image'))
+
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use('/images', express.static(path.join(__dirname,"images")))
 
 app.use(session({secret:'my secret', resave: false, saveUninitialized: false, store: store}))
 
 app.use(csrfProtection)
+
 app.use(flash())
 
 app.use((req,res,next) => {
@@ -40,6 +64,7 @@ app.use((req,res,next) => {
   res.locals.csrfToken= req.csrfToken()
   next()
 })
+
 app.use((req,res,next)=>{
   // throw new Error("Dummy")
   if(!req.session.user || !req.session.user._id){
@@ -61,7 +86,7 @@ app.use("/admin", adminRoutes);
 app.use(authRoute)
 
 
-app.get('/500',errorController.get500)
+app.get('/500', errorController.get500)
 app.use(errorController.get404);
 
 app.use((error, req, res, next)=>{
