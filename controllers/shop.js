@@ -3,6 +3,7 @@ const User = require("../models/user");
 const Order = require("../models/order");
 const fs = require("fs");
 const path = require('path')
+const stripe = require('stripe')('sk_test_51PVrFA2KVDWXGD5V9Eg3dfrm9JzHY1eMRELZMdvqxyDgKNpZ8jVpriLeVdkwvFsGnJRKt4yWa3yQGCIZ70eM1d8j00ZUD5Wzh8')
 const PDFDocument = require('pdfkit')
 
 const ITEMS_PER_PAGE = 2
@@ -154,11 +155,56 @@ exports.getOrders = (req, res, next) => {
   })
   
 };
+
 exports.getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    pageTitle: "Checkout", ///pug
-    path: "/checkout"
-  });
+  let products
+  let total=0
+  if (req.user){
+    console.log(req.user);
+    if(req.user.cart.items.length > 0){
+      req.user
+      .populate('cart.items.productId')
+      .then((user) => {
+        products = user.cart.items
+        products.forEach((product) =>{
+          total+=product.quantity * product.productId.price
+        })
+        return stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: products.map(p=>{
+            return {
+              quantity: p.quantity,
+              price_data: {
+                currency: 'usd',
+                unit_amount: p.productId.price * 100,
+                product_data: {
+                  name: p.productId.title,
+                  description: p.productId.description,
+                },
+              },
+            }
+          }),
+          mode:'payment',
+          success_url: req.protocol+ '://'+ req.get('host')+'/checkout/success',
+          cancel_url:req.protocol+ '://'+ req.get('host')+'/checkout/cancel'
+        })
+      }).then(session=>{
+        return res.render("shop/checkout", {
+          products: products,
+          pageTitle: "Checkout", ///pug
+          path: "/checkout",
+          totalSum: total,
+          sessionId: session.id
+        });
+      })
+      .catch((err) => {
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        throw next(error)
+      });
+    }
+  }
+  
 };
 
 exports.postOrder = (req, res, next) => {
