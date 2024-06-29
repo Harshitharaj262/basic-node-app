@@ -1,0 +1,28 @@
+{
+  "name": "basic-node-app",
+  "version": "1.0.0",
+  "description": "TODO: Complete the stripe fullfillment process Official Stripe.js Docs: https://stripe.com/docs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harshitharaj262/basic-node-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Harshitharaj262/basic-node-app/issues"
+  },
+  "homepage": "https://github.com/Harshitharaj262/basic-node-app#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
