@@ -3,7 +3,7 @@ const User = require("../models/user");
 const Order = require("../models/order");
 const fs = require("fs");
 const path = require('path')
-const stripe = require('stripe')('sk_test_51PVrFA2KVDWXGD5V9Eg3dfrm9JzHY1eMRELZMdvqxyDgKNpZ8jVpriLeVdkwvFsGnJRKt4yWa3yQGCIZ70eM1d8j00ZUD5Wzh8')
+const stripe = require('stripe')('') // add stripr secret
 const PDFDocument = require('pdfkit')
 
 const ITEMS_PER_PAGE = 2

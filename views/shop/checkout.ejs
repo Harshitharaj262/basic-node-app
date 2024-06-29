@@ -21,7 +21,7 @@
                 <button class="btn" id="order-btn">Place Order</button>
                 <script src="https://js.stripe.com/v3/"></script>
                 <script>
-                    var stripe = Stripe('pk_test_51PVrFA2KVDWXGD5Vodm4gWwui00I0fcpeu8peZ08lPo0tWHDEYYs7Rc4UDnt5kmmzkeUbVxG3G6n2DuT3BxXiBUv00dc3hQOCP');
+                    var stripe = Stripe(''); // add API key value
                     var orderBtn = document.getElementById('order-btn')
                     orderBtn.addEventListener('click', function(){
                         stripe.redirectToCheckout({
