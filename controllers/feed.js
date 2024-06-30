@@ -3,6 +3,7 @@ const Post = require("../models/post");
 const fs = require("fs");
 const path = require("path");
 const User = require("../models/user");
+const io = require('../socket')
 
 exports.getFeeds = async (req, res, next) => {
   try {
@@ -10,7 +11,8 @@ exports.getFeeds = async (req, res, next) => {
     const perPage = 2;
     let totalItems;
     totalItems = await Post.find().countDocuments();
-    const posts = await Post.find()
+    const posts = await Post.find().populate('creator')
+    .sort({createdAt: -1})
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
     res.status(200).json({
@@ -57,6 +59,7 @@ exports.postFeeds = async (req, res, next) => {
       user.posts.push(post);
       const result = await user.save();
       if (result) {
+        io.getIO().emit('posts',{action:'create',post:{...post, creator:{_id: req.userId,name:user.name}}})
         res.status(201).json({
           message: "feed created successfully",
           post: post,
@@ -120,13 +123,13 @@ exports.putFeed = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('creator');
     if (!post) {
       const error = new Error("Could not find post");
       error.statusCode = 404;
       throw error;
     }
-    if (post.creator.toString() !== req.userId) {
+    if (post.creator._id.toString() !== req.userId) {
       const error = new Error("Not Authorized");
       error.statusCode = 403;
       throw error;
@@ -139,6 +142,7 @@ exports.putFeed = async (req, res, next) => {
     post.content = content;
     const result = await post.save();
     if (result) {
+      io.getIO().emit('posts',{action:'update', post:result})  
       res.status(200).json({ message: "Post Updated", post: result });
     } else {
       const error = new Error("Post Not updated");
@@ -158,13 +162,13 @@ exports.deleteFeed = async (req, res, next) => {
   try {
     const postId = req.params.postId;
     console.log(postId);
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('creator');
     if (!post) {
       const error = new Error("Could not find post");
       error.statusCode = 404;
       throw error;
     }
-    if (post.creator.toString() !== req.userId) {
+    if (post.creator._id.toString() !== req.userId) {
       const error = new Error("Not Authorized");
       error.statusCode = 403;
       throw error;
@@ -173,7 +177,8 @@ exports.deleteFeed = async (req, res, next) => {
     await Post.findByIdAndDelete(postId);
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
-    await user.save();
+    const result = await user.save();
+    io.getIO().emit('posts',{action:'delete', post:result})
     res.status(200).json({ message: "Deleted Post" });
   } catch (error) {
     if (!error.statusCode) {
